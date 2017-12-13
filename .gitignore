@@ -1,0 +1,46 @@
+# Packaged Files and Binaries #
+###############################
+*.jar
+*.war
+*.ear
+
+# Log Files and Crash Dumps #
+#############################
+*.log
+hs_err_pid*
+
+# IDE Explicit Files #
+######################
+.idea
+*.iml
+.settings
+.classpath
+.project
+.directory
+nb-configuration.xml
+nbactions.xml
+
+# Specific Maven Content #
+##########################
+target/
+
+# Java #
+########
+*.class
+
+# Build Packagaing #
+####################
+packer_cache
+packer-vmware-iso
+
+# General Content #
+###################
+Thumbs.db
+desktop.ini
+.DS_Store
+.DS_Store?
+
+# Vim detritus #
+################
+*~
+*.swp
