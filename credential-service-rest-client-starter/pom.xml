@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>credential-service-rest-client</artifactId>
+        <groupId>com.dell.cpsd</groupId>
+        <version>0.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>credential-service-rest-client-starter</artifactId>
+    <name>credential-service-rest-client-starter</name>
+    <description>Spring boot starter project for credential service rest client</description>
+
+    <developers>
+        <developer>
+            <name>Naveen Hirebeel</name>
+            <email>naveen.hirebeel@dell.com</email>
+            <organization>com.dell.cpsd</organization>
+            <organizationUrl>https://github.com/naveenhirebeeldell</organizationUrl>
+        </developer>
+        <developer>
+            <name>Rishi Srivastav</name>
+            <email>rishi.srivastav@dell.com</email>
+            <organization>com.dell.cpsd</organization>
+        </developer>
+    </developers>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+            <version>${spring-boot-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.dell.cpsd</groupId>
+            <artifactId>credential-service-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>
