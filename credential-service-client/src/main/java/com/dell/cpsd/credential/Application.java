@@ -65,9 +65,11 @@ public class Application
     {
         return args ->
         {
-            getPublicKey();
+//            getPublicKey();
 //            getSecretByKey();
+            getDecryptedSecretByKey();
 //            getSecretById();
+//            getDecryptedSecretById();
 //            saveSecret();
 //            updateSecret();
 //            deleteSecretByKey();
@@ -100,6 +102,16 @@ public class Application
             System.out.println(" CredentialServiceClientException "+ ex.getMessage());
         }
     }
+    private void getDecryptedSecretByKey(){
+        System.out.println("Started......");
+        try {
+            String publicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6fje7eDj6GhuiGrIRDQek3C/LYLKk69OLqHTBfgJspKO5IEEZsZLCFQOi6BughtZlYS5SsDWqTZ/jB0KHICxHDqgjSyd4xMQVDG8ARxbTufN3OyL0k0GK5a6L/wJjgu1Inx2MHofkRuIemM9/JxepmY6l9zsZPIJZYrQ0iJ4+QZ0ggwQNKnUT5UNVrkTIYsi/ZckFeB/6mYLqOXmA1w0OBCi1EvQN7V5ixWNcj2Kdx3xu6OY4By2afEb0eXe6u05RfU0R3UvQPmu15nrXNpPTLe5yr0EJOcnjKZpM39bohn8hkeopwO1nRSNOXLPnbyHHne0MpWQuwjmN2UX/HBP4QIDAQAB";
+            SecretStoreResponse storeResponse = credentialServiceClient.getDecryptedSecretByKey( "key_151220017_1");
+            System.out.println("secretId -> " + storeResponse.toString());
+        } catch(CredentialServiceClientException ex) {
+            System.out.println(" CredentialServiceClientException "+ ex.getMessage());
+        }
+    }
     private void getSecretById(){
         System.out.println("Started......");
         try {
@@ -110,11 +122,21 @@ public class Application
             System.out.println(" CredentialServiceClientException "+ ex.getMessage());
         }
     }
+    private void getDecryptedSecretById(){
+        System.out.println("Started......");
+        try {
+            String publicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6fje7eDj6GhuiGrIRDQek3C/LYLKk69OLqHTBfgJspKO5IEEZsZLCFQOi6BughtZlYS5SsDWqTZ/jB0KHICxHDqgjSyd4xMQVDG8ARxbTufN3OyL0k0GK5a6L/wJjgu1Inx2MHofkRuIemM9/JxepmY6l9zsZPIJZYrQ0iJ4+QZ0ggwQNKnUT5UNVrkTIYsi/ZckFeB/6mYLqOXmA1w0OBCi1EvQN7V5ixWNcj2Kdx3xu6OY4By2afEb0eXe6u05RfU0R3UvQPmu15nrXNpPTLe5yr0EJOcnjKZpM39bohn8hkeopwO1nRSNOXLPnbyHHne0MpWQuwjmN2UX/HBP4QIDAQAB";
+            SecretStoreResponse storeResponse = credentialServiceClient.getDecryptedSecretBySecretId(456l);
+            System.out.println("secretId -> " + storeResponse.toString());
+        } catch(CredentialServiceClientException ex) {
+            System.out.println(" CredentialServiceClientException "+ ex.getMessage());
+        }
+    }
     private void saveSecret(){
         System.out.println("Started......");
         try {
             SecretRequest request = new SecretRequest();
-            request.setKey("key_141220017_1");
+            request.setKey("key_151220017_1");
             Map<String, String> credentialElement = new HashMap<>();
             credentialElement.put("user", "ABC");
             credentialElement.put("pwd", "XYZ");

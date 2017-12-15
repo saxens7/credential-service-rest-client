@@ -23,7 +23,11 @@ public interface CredentialServiceClient
 
     SecretStoreResponse getSecretByKey(String publicKey, String secretKey) throws CredentialServiceClientException;
 
+    SecretStoreResponse getDecryptedSecretByKey(String secretKey) throws CredentialServiceClientException;
+
     SecretStoreResponse getSecretBySecretId(String publicKey, Long secretId) throws CredentialServiceClientException;
+
+    SecretStoreResponse getDecryptedSecretBySecretId(Long secretId) throws CredentialServiceClientException;
 
     String saveSecret(SecretRequest secretRequest) throws CredentialServiceClientException;
 

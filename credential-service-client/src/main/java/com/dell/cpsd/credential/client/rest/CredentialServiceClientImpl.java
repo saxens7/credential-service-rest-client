@@ -1,11 +1,14 @@
 /**
  * Copyright &copy; 2017 Dell Inc. or its subsidiaries. All Rights Reserved. DELL EMC Confidential/Proprietary Information
  */
+
 package com.dell.cpsd.credential.client.rest;
 
+import com.dell.cpsd.common.keystore.encryption.AsymmetricCipherManager;
 import com.dell.cpsd.credential.exception.CredentialServiceClientException;
 import com.dell.cpsd.credential.model.rest.api.request.SecretRequest;
 import com.dell.cpsd.credential.model.rest.api.response.PublicKeyResponse;
+import com.dell.cpsd.credential.model.rest.api.response.SecretResponse;
 import com.dell.cpsd.credential.model.rest.api.response.SecretStoreResponse;
 import com.dell.cpsd.credential.util.AsymmetricCipherManagerUtil;
 import com.dell.cpsd.credential.util.ErrorMessages;
@@ -24,6 +27,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -43,6 +47,9 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
 
     @Autowired
     AsymmetricCipherManagerUtil asymmetricCipherManagerUtil;
+
+    @Autowired
+    AsymmetricCipherManager asymmetricCipherManager;
 
     @Override
     public String getPublicKey() throws CredentialServiceClientException
@@ -89,6 +96,15 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
     }
 
     @Override
+    public SecretStoreResponse getDecryptedSecretByKey(final String secretKey)
+            throws CredentialServiceClientException
+    {
+        SecretStoreResponse secretStoreResponse = this.getSecretByKey(asymmetricCipherManager.getPublicKeyEncodedBase64(), secretKey);
+        //Decrypt
+        return decryptSecretStoreResponse(secretStoreResponse);
+    }
+
+    @Override
     public SecretStoreResponse getSecretBySecretId(final String publicKey, final Long secretId) throws CredentialServiceClientException
     {
         //ToDo - Change it to get from capability registry / property file.
@@ -115,6 +131,15 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
             ErrorMessages.GET_SECRET_BY_SECRET_ID_FAILED.processException(clientException);
         }
         return storeResponse;
+    }
+
+    @Override
+    public SecretStoreResponse getDecryptedSecretBySecretId(final Long secretId)
+            throws CredentialServiceClientException
+    {
+        SecretStoreResponse secretStoreResponse = this.getSecretBySecretId(asymmetricCipherManager.getPublicKeyEncodedBase64(), secretId);
+        //Decrypt
+        return decryptSecretStoreResponse(secretStoreResponse);
     }
 
     @Override
@@ -224,47 +249,14 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
         }
     }
 
-    private void processSaveSecretResponseException(RestClientException clientException) throws CredentialServiceClientException
-    {
-        processResponseException(clientException, ErrorMessages.SAVE_SECRET_FAILED);
-    }
+    private SecretStoreResponse decryptSecretStoreResponse(SecretStoreResponse secretStoreResponse) throws CredentialServiceClientException{
+        List<SecretResponse> secretResponses = secretStoreResponse.getSecrets();
 
-    private void processUpdateSecretResponseException(RestClientException clientException) throws CredentialServiceClientException
-    {
-        processResponseException(clientException, ErrorMessages.UPDATE_SECRET_FAILED);
-    }
-
-    private void processDeleteSecretResponseException(RestClientException clientException) throws CredentialServiceClientException
-    {
-        this.processResponseException(clientException, ErrorMessages.DELETE_SECRET_BY_KEY_FAILED);
-    }
-
-    private void processGetSecretResponseException(RestClientException clientException, ErrorMessages errorMessage)
-            throws CredentialServiceClientException
-    {
-        processResponseException(clientException, errorMessage);
-    }
-
-    private void processResponseException(RestClientException clientException, ErrorMessages errorMessage)
-            throws CredentialServiceClientException
-    {
-        String body = ((HttpClientErrorException) clientException).getResponseBodyAsString();
-        if (StringUtils.isEmpty(body))
-        {
-            throw new CredentialServiceClientException(errorMessage.toString(), clientException);
+        for(SecretResponse secretResponse : secretResponses){
+            Object credentialElement = secretResponse.getCredentialElement();
+            secretResponse.setCredentialElement(asymmetricCipherManagerUtil.decryptCredentialElement(credentialElement, asymmetricCipherManager));
         }
-        else
-        {
-            SecretStoreResponse response = null;
-            try
-            {
-                response = JSONUtil.jsonToObject(body, SecretStoreResponse.class);
-            }
-            catch (Exception ex)
-            {
-                throw new CredentialServiceClientException(errorMessage.toString(), clientException);
-            }
-            throw new CredentialServiceClientException(response.getErrorCode(), clientException);
-        }
+
+        return secretStoreResponse;
     }
 }

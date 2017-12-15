@@ -28,6 +28,7 @@ public enum ErrorMessages
     INVALID_PUBLIC_KEY_FORMAT("Invalid Public key format."),
     INVALID_CREDENTIAL_ELEMENT_FORMAT("Invalid format for credential element."),
     ENCRYPTION_TRANSFORMATION_ERROR("Error encrypting the Credential Element."),
+    DECRYPTION_TRANSFORMATION_ERROR("Error decrypting the Credential Element."),
     GET_PUBLIC_KEY_FAILED("Get Public key Failed."),
     GET_SECRET_BY_KEY_FAILED("Get Secret by key Failed."),
     GET_SECRET_BY_SECRET_ID_FAILED("Get Secret by key secretId Failed.");
@@ -61,4 +62,9 @@ public enum ErrorMessages
         }
     }
 
+    @Override
+    public String toString()
+    {
+        return this.errorMessage;
+    }
 }
