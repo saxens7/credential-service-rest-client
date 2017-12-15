@@ -47,7 +47,7 @@ public class AsymmetricCipherManagerUtil
         //Parse
         try
         {
-            return JSONUtil.convertObjectToJsonNode(credentialElement);
+            return JsonUtil.convertObjectToJsonNode(credentialElement);
         }
         catch (IOException ex)
         {

@@ -19,7 +19,7 @@ import java.io.IOException;
  * @since 1.0
  */
 @Component
-public class JSONUtil
+public class JsonUtil
 {
     private static final ObjectMapper objectMapper = new ObjectMapper();
 

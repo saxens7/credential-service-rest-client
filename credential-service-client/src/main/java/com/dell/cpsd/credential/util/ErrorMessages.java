@@ -52,7 +52,7 @@ public enum ErrorMessages
             SecretStoreResponse response = null;
             try
             {
-                response = new JSONUtil().jsonToObject(body, SecretStoreResponse.class);
+                response = new JsonUtil().jsonToObject(body, SecretStoreResponse.class);
             }
             catch (Exception ex)
             {
