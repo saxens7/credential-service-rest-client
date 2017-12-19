@@ -9,7 +9,7 @@ import com.dell.cpsd.credential.model.rest.api.request.SecretRequest;
 import com.dell.cpsd.credential.model.rest.api.response.SecretStoreResponse;
 
 /**
- * The credential manager service exception class.
+ * The credential service interface.
  * <p>
  * Copyright &copy; 2017 Dell Inc. or its subsidiaries. All Rights Reserved.
  * </p>
@@ -21,20 +21,20 @@ public interface CredentialServiceClient
 {
     String getPublicKey() throws CredentialServiceClientException;
 
-    SecretStoreResponse getSecretByKey(String publicKey, String secretKey) throws CredentialServiceClientException;
+    SecretStoreResponse getSecret(String secretKey, String publicKey) throws CredentialServiceClientException;
 
-    SecretStoreResponse getDecryptedSecretByKey(String secretKey) throws CredentialServiceClientException;
+    SecretStoreResponse getSecret(String secretKey) throws CredentialServiceClientException;
 
-    SecretStoreResponse getSecretBySecretId(String publicKey, Long secretId) throws CredentialServiceClientException;
+    SecretStoreResponse getSecret(String publicKey, Long secretId) throws CredentialServiceClientException;
 
-    SecretStoreResponse getDecryptedSecretBySecretId(Long secretId) throws CredentialServiceClientException;
+    SecretStoreResponse getSecret(Long secretId) throws CredentialServiceClientException;
 
     String saveSecret(SecretRequest secretRequest) throws CredentialServiceClientException;
 
     String updateSecret(SecretRequest secretRequest) throws CredentialServiceClientException;
 
-    void deleteSecretByKey(String secretKey) throws CredentialServiceClientException;
+    void deleteSecret(String secretKey) throws CredentialServiceClientException;
 
-    void deleteSecretBySecretId(Long secretId) throws CredentialServiceClientException;
+    void deleteSecret(Long secretId) throws CredentialServiceClientException;
 
 }

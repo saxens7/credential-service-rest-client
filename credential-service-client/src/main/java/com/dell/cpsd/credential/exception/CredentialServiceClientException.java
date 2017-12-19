@@ -4,7 +4,7 @@
 package com.dell.cpsd.credential.exception;
 
 /**
- * The credential manager service exception class.
+ * The credential service client exception class.
  * <p>
  * Copyright &copy; 2017 Dell Inc. or its subsidiaries. All Rights Reserved.
  * </p>

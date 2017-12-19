@@ -8,6 +8,7 @@ import com.dell.cpsd.common.keystore.encryption.AsymmetricCipherManager;
 import com.dell.cpsd.common.keystore.encryption.exception.CipherManagerException;
 import com.dell.cpsd.credential.exception.CredentialServiceClientException;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -17,7 +18,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * The credential manager service exception class.
+ * The AsymmetricCipherManager Utility class.
  * <p>
  * Copyright &copy; 2017 Dell Inc. or its subsidiaries. All Rights Reserved.
  * </p>
@@ -28,6 +29,9 @@ import java.util.Map;
 @Component
 public class AsymmetricCipherManagerUtil
 {
+
+    @Autowired
+    AsymmetricCipherManager asymmetricCipherManager;
 
     private AsymmetricCipherManager buildAsymmetricManager(String publicKey) throws CredentialServiceClientException
     {
@@ -77,7 +81,7 @@ public class AsymmetricCipherManagerUtil
         return response;
     }
 
-    public Object decryptCredentialElement(Object credentialElement, AsymmetricCipherManager asymmetricCipherManager) throws CredentialServiceClientException
+    public Object decryptCredentialElement(Object credentialElement) throws CredentialServiceClientException
     {
         //Parse
         JsonNode input = convertObjectToJsonNode(credentialElement);

@@ -155,62 +155,6 @@
                     </dependency>
                 </dependencies>
                 <executions>
-                    <!-- BACKWARD COMPATILBILITY -->
-                    <!--<execution>
-                        <id>generate-json-model-collection-credential-service-api</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <sourceDirectory>${project.build.directory}/dependency/credential-service-api/schema/json</sourceDirectory>
-                            <targetPackage>com.dell.cpsd.credential.model.api</targetPackage>
-                            <outputDirectory>${project.build.directory}/generated-sources/credential-service-api</outputDirectory>
-                            <useLongIntegers>true</useLongIntegers>
-                            <removeOldOutput>true</removeOldOutput>
-                            <includeConstructors>true</includeConstructors>
-                            <serializable>false</serializable>
-                            <includeAdditionalProperties>false</includeAdditionalProperties>
-                            <generateBuilders>true</generateBuilders>
-                            <useCommonsLang3>true</useCommonsLang3>
-                            <includeJsr303Annotations>true</includeJsr303Annotations>
-                            <sourceSortOrder>FILES_FIRST</sourceSortOrder>
-                            <customAnnotator>com.dell.cpsd.common.contract.enricher.plugins.jsonschema2pojo.MessageAnnotator
-                            </customAnnotator>
-                            <customRuleFactory>com.dell.cpsd.common.contract.enricher.plugins.jsonschema2pojo.DefaultRuleFactory
-                            </customRuleFactory>
-
-                        </configuration>
-                    </execution>-->
-
-                    <!-- BACKWARD COMPATILBILITY -->
-                    <!--<execution>
-                        <id>generate-json-model-collection-credentials-service-api</id>
-                        <phase>generate-resources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <sourceDirectory>${project.build.directory}/dependency/credentials-service-api/schema/json</sourceDirectory>
-                            <targetPackage>com.dell.cpsd.credential.model.api</targetPackage>
-                            <outputDirectory>${project.build.directory}/generated-sources/credentials-service-api</outputDirectory>
-                            <useLongIntegers>true</useLongIntegers>
-                            <removeOldOutput>true</removeOldOutput>
-                            <includeConstructors>true</includeConstructors>
-                            <serializable>false</serializable>
-                            <includeAdditionalProperties>false</includeAdditionalProperties>
-                            <generateBuilders>true</generateBuilders>
-                            <useCommonsLang3>true</useCommonsLang3>
-                            <includeJsr303Annotations>true</includeJsr303Annotations>
-                            <sourceSortOrder>FILES_FIRST</sourceSortOrder>
-                            <customAnnotator>com.dell.cpsd.common.contract.enricher.plugins.jsonschema2pojo.MessageAnnotator
-                            </customAnnotator>
-                            <customRuleFactory>com.dell.cpsd.common.contract.enricher.plugins.jsonschema2pojo.DefaultRuleFactory
-                            </customRuleFactory>
-
-                        </configuration>
-                    </execution>-->
-
                     <!-- For REST -->
                     <execution>
                         <id>generate-json-model-collection-credentials-service-rest-api</id>

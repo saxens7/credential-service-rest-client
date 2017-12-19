@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The credential manager service exception class.
+ * The credential service implementation class.
  * <p>
  * Copyright &copy; 2017 Dell Inc. or its subsidiaries. All Rights Reserved.
  * </p>
@@ -65,7 +65,7 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
     }
 
     @Override
-    public SecretStoreResponse getSecretByKey(final String publicKey, final String secretKey) throws CredentialServiceClientException
+    public SecretStoreResponse getSecret(final String secretKey, final String publicKey) throws CredentialServiceClientException
     {
         //ToDo - Change it to get from capability registry / property file.
         String URL = "https://credential-service.cpsd.dell:9090/secretstore/v1/key";
@@ -93,16 +93,16 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
     }
 
     @Override
-    public SecretStoreResponse getDecryptedSecretByKey(final String secretKey)
+    public SecretStoreResponse getSecret(final String secretKey)
             throws CredentialServiceClientException
     {
-        SecretStoreResponse secretStoreResponse = this.getSecretByKey(asymmetricCipherManager.getPublicKeyEncodedBase64(), secretKey);
+        SecretStoreResponse secretStoreResponse = this.getSecret(secretKey, asymmetricCipherManager.getPublicKeyEncodedBase64());
         //Decrypt
         return decryptSecretStoreResponse(secretStoreResponse);
     }
 
     @Override
-    public SecretStoreResponse getSecretBySecretId(final String publicKey, final Long secretId) throws CredentialServiceClientException
+    public SecretStoreResponse getSecret(final String publicKey, final Long secretId) throws CredentialServiceClientException
     {
         //ToDo - Change it to get from capability registry / property file.
         String URL = "https://credential-service.cpsd.dell:9090/secretstore/v1/secret/{secretId}";
@@ -131,10 +131,10 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
     }
 
     @Override
-    public SecretStoreResponse getDecryptedSecretBySecretId(final Long secretId)
+    public SecretStoreResponse getSecret(final Long secretId)
             throws CredentialServiceClientException
     {
-        SecretStoreResponse secretStoreResponse = this.getSecretBySecretId(asymmetricCipherManager.getPublicKeyEncodedBase64(), secretId);
+        SecretStoreResponse secretStoreResponse = this.getSecret(asymmetricCipherManager.getPublicKeyEncodedBase64(), secretId);
         //Decrypt
         return decryptSecretStoreResponse(secretStoreResponse);
     }
@@ -187,7 +187,7 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
     }
 
     @Override
-    public void deleteSecretByKey(final String secretKey) throws CredentialServiceClientException
+    public void deleteSecret(final String secretKey) throws CredentialServiceClientException
     {
 
         //ToDo - Change it to get from capability registry / property file.
@@ -207,7 +207,7 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
     }
 
     @Override
-    public void deleteSecretBySecretId(final Long secretId) throws CredentialServiceClientException
+    public void deleteSecret(final Long secretId) throws CredentialServiceClientException
     {
         //ToDo - Change it to get from capability registry / property file.
         String URL = "https://credential-service.cpsd.dell:9090/secretstore/v1/secret/{secretId}";
@@ -251,7 +251,7 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
 
         for(SecretResponse secretResponse : secretResponses){
             Object credentialElement = secretResponse.getCredentialElement();
-            secretResponse.setCredentialElement(asymmetricCipherManagerUtil.decryptCredentialElement(credentialElement, asymmetricCipherManager));
+            secretResponse.setCredentialElement(asymmetricCipherManagerUtil.decryptCredentialElement(credentialElement));
         }
 
         return secretStoreResponse;

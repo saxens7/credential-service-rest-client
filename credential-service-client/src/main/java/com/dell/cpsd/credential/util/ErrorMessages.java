@@ -10,7 +10,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClientException;
 
 /**
- * The credential manager service exception class.
+ * The Error Messages class.
  * <p>
  * Copyright &copy; 2017 Dell Inc. or its subsidiaries. All Rights Reserved.
  * </p>
@@ -42,7 +42,13 @@ public enum ErrorMessages
 
     public void processException(RestClientException clientException) throws CredentialServiceClientException
     {
-        String body = ((HttpClientErrorException) clientException).getResponseBodyAsString();
+        String body;
+        try {
+            body = ((HttpClientErrorException) clientException).getResponseBodyAsString();
+        } catch(ClassCastException ex){
+            throw new CredentialServiceClientException(this.errorMessage, clientException);
+        }
+
         if (StringUtils.isEmpty(body))
         {
             throw new CredentialServiceClientException(this.errorMessage, clientException);
