@@ -19,6 +19,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -48,6 +49,9 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
     @Autowired
     AsymmetricCipherManager asymmetricCipherManager;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getPublicKey() throws CredentialServiceClientException
     {
@@ -55,8 +59,8 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
         String URL = "https://credential-service.cpsd.dell:9090/secretstore/v1/publickey";
         try
         {
-            PublicKeyResponse publickKeyResponse = restTemplate.getForObject(URL, PublicKeyResponse.class);
-            return publickKeyResponse.getPublicKey();
+            PublicKeyResponse publicKeyResponse = restTemplate.getForObject(URL, PublicKeyResponse.class);
+            return publicKeyResponse.getPublicKey();
         }
         catch (RestClientException clientException)
         {
@@ -64,8 +68,21 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SecretStoreResponse getSecret(final String secretKey, final String publicKey) throws CredentialServiceClientException
+    {
+        return this.getSecret(secretKey, null, publicKey);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SecretStoreResponse getSecret(final String secretKey, final String role, final String publicKey)
+            throws CredentialServiceClientException
     {
         //ToDo - Change it to get from capability registry / property file.
         String URL = "https://credential-service.cpsd.dell:9090/secretstore/v1/key";
@@ -75,7 +92,15 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
         headers.set("X-PublicKey", publicKey);
         HttpEntity<byte[]> entity = new HttpEntity<byte[]>(headers);
 
-        UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(URL).queryParam("key", secretKey);
+        UriComponentsBuilder builder;
+        if (StringUtils.isEmpty(role))
+        {
+            builder = UriComponentsBuilder.fromUriString(URL).queryParam("key", secretKey);
+        }
+        else
+        {
+            builder = UriComponentsBuilder.fromUriString(URL).queryParam("key", secretKey).queryParam("role", role);
+        }
 
         SecretStoreResponse storeResponse = null;
         try
@@ -92,8 +117,11 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
         return storeResponse;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public SecretStoreResponse getSecret(final String secretKey)
+    public SecretStoreResponse getDecryptedSecret(final String secretKey)
             throws CredentialServiceClientException
     {
         SecretStoreResponse secretStoreResponse = this.getSecret(secretKey, asymmetricCipherManager.getPublicKeyEncodedBase64());
@@ -102,7 +130,18 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
     }
 
     @Override
-    public SecretStoreResponse getSecret(final String publicKey, final Long secretId) throws CredentialServiceClientException
+    public SecretStoreResponse getDecryptedSecret(final String secretKey, final String role) throws CredentialServiceClientException
+    {
+        SecretStoreResponse secretStoreResponse = this.getSecret(secretKey, role, asymmetricCipherManager.getPublicKeyEncodedBase64());
+        //Decrypt
+        return decryptSecretStoreResponse(secretStoreResponse);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public SecretStoreResponse getSecret(final Long secretId, final String publicKey) throws CredentialServiceClientException
     {
         //ToDo - Change it to get from capability registry / property file.
         String URL = "https://credential-service.cpsd.dell:9090/secretstore/v1/secret/{secretId}";
@@ -130,15 +169,21 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
         return storeResponse;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public SecretStoreResponse getSecret(final Long secretId)
+    public SecretStoreResponse getDecryptedSecret(final Long secretId)
             throws CredentialServiceClientException
     {
-        SecretStoreResponse secretStoreResponse = this.getSecret(asymmetricCipherManager.getPublicKeyEncodedBase64(), secretId);
+        SecretStoreResponse secretStoreResponse = this.getSecret(secretId, asymmetricCipherManager.getPublicKeyEncodedBase64());
         //Decrypt
         return decryptSecretStoreResponse(secretStoreResponse);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String saveSecret(final SecretRequest secretRequest) throws CredentialServiceClientException
     {
@@ -163,6 +208,9 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
         return secretId;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String updateSecret(final SecretRequest secretRequest) throws CredentialServiceClientException
     {
@@ -186,6 +234,9 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
         return secretId;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void deleteSecret(final String secretKey) throws CredentialServiceClientException
     {
@@ -206,6 +257,9 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void deleteSecret(final Long secretId) throws CredentialServiceClientException
     {

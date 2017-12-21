@@ -33,6 +33,13 @@ public class AsymmetricCipherManagerUtil
     @Autowired
     AsymmetricCipherManager asymmetricCipherManager;
 
+    /**
+     * This method will be used to build instance of AsymmetricCipherManager from provided public key
+     *
+     * @param publicKey
+     * @return
+     * @throws CredentialServiceClientException
+     */
     private AsymmetricCipherManager buildAsymmetricManager(String publicKey) throws CredentialServiceClientException
     {
         //Create AsymmetricCipherManager

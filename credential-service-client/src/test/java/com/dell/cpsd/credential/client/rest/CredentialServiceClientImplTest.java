@@ -339,7 +339,7 @@ public class CredentialServiceClientImplTest
         mockServer.expect(requestTo(Matchers.containsString(secretStoreIdUri))).andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(getSecretBySecretIdResponse, MediaType.APPLICATION_JSON));
 
-        SecretStoreResponse storeResponse = credentialServiceClient.getSecret(publickKey, secretId);
+        SecretStoreResponse storeResponse = credentialServiceClient.getSecret(secretId, publickKey);
         String response = JsonUtil.convertObjectToJson(storeResponse);
         Assert.assertEquals(getSecretBySecretIdResponse, response);
     }
@@ -352,7 +352,7 @@ public class CredentialServiceClientImplTest
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST);
         });
 
-        credentialServiceClient.getSecret(publickKeyInvalid, secretId);
+        credentialServiceClient.getSecret(secretId, publickKeyInvalid);
     }
 
     @Test
@@ -363,7 +363,7 @@ public class CredentialServiceClientImplTest
 
         Mockito.when(asymmetricCipherManagerUtil.decryptCredentialElement(Mockito.any())).thenReturn(credentialElement);
 
-        SecretStoreResponse storeResponse = credentialServiceClient.getSecret(secretId);
+        SecretStoreResponse storeResponse = credentialServiceClient.getDecryptedSecret(secretId);
         String response = JsonUtil.convertObjectToJson(storeResponse.getSecrets().get(0).getCredentialElement());
         String credentialElementStr = JsonUtil.convertObjectToJson(credentialElement);
         Assert.assertEquals(credentialElementStr, response);
@@ -376,7 +376,7 @@ public class CredentialServiceClientImplTest
                 .andRespond(withSuccess(getSecretBySecretIdResponse, MediaType.APPLICATION_JSON));
 
         Mockito.when(asymmetricCipherManagerUtil.decryptCredentialElement(Mockito.any())).thenThrow(new CredentialServiceClientException(ErrorMessages.DECRYPTION_TRANSFORMATION_ERROR.toString(), new Throwable()));
-        credentialServiceClient.getSecret(secretId);
+        credentialServiceClient.getDecryptedSecret(secretId);
     }
 
 }

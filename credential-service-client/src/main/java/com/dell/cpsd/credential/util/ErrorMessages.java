@@ -40,6 +40,13 @@ public enum ErrorMessages
         this.errorMessage = msg;
     }
 
+    /**
+     * This method will parse response error message and build CredentialServiceClientException accordingly.
+     * In case of un parsable response error message generic CredentialServiceClientException will be built.
+     *
+     * @param clientException
+     * @throws CredentialServiceClientException
+     */
     public void processException(RestClientException clientException) throws CredentialServiceClientException
     {
         String body;
