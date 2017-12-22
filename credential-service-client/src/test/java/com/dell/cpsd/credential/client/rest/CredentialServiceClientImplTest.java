@@ -1,17 +1,18 @@
 /**
  * Copyright &copy; 2017 Dell Inc. or its subsidiaries. All Rights Reserved. DELL EMC Confidential/Proprietary Information
  */
+
 package com.dell.cpsd.credential.client.rest;
 
-import com.dell.cpsd.common.keystore.encryption.AsymmetricCipherManager;
-import com.dell.cpsd.common.keystore.encryption.SymmetricCipherManager;
-import com.dell.cpsd.common.keystore.encryption.exception.CipherManagerException;
-import com.dell.cpsd.credential.exception.CredentialServiceClientException;
-import com.dell.cpsd.credential.model.rest.api.request.SecretRequest;
-import com.dell.cpsd.credential.model.rest.api.response.SecretStoreResponse;
-import com.dell.cpsd.credential.util.AsymmetricCipherManagerUtil;
-import com.dell.cpsd.credential.util.ErrorMessages;
-import com.dell.cpsd.credential.util.JsonUtil;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Assert;
@@ -29,14 +30,15 @@ import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
+import com.dell.cpsd.common.keystore.encryption.AsymmetricCipherManager;
+import com.dell.cpsd.common.keystore.encryption.SymmetricCipherManager;
+import com.dell.cpsd.common.keystore.encryption.exception.CipherManagerException;
+import com.dell.cpsd.credential.exception.CredentialServiceClientException;
+import com.dell.cpsd.credential.model.rest.api.request.SecretRequest;
+import com.dell.cpsd.credential.model.rest.api.response.SecretStoreResponse;
+import com.dell.cpsd.credential.util.AsymmetricCipherManagerUtil;
+import com.dell.cpsd.credential.util.ErrorMessages;
+import com.dell.cpsd.credential.util.JsonUtil;
 
 /**
  * The Credential Service Client Implementation Test.
@@ -51,36 +53,38 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 public class CredentialServiceClientImplTest
 {
     @InjectMocks
-    CredentialServiceClientImpl credentialServiceClient;
+    CredentialServiceClientImpl   credentialServiceClient;
 
     @Mock
-    RestTemplate restTemplate;
+    RestTemplate                  restTemplate;
 
     private MockRestServiceServer mockServer;
 
     @Mock
-    AsymmetricCipherManagerUtil asymmetricCipherManagerUtil;
+    AsymmetricCipherManagerUtil   asymmetricCipherManagerUtil;
 
     @Mock
-    AsymmetricCipherManager asymmetricCipherManager;
+    AsymmetricCipherManager       asymmetricCipherManager;
 
-    String secretStoreUri;
-    String publicKeyUri;
-    String secretStoreIdUri;
-    Long   secretId;
+    String                        secretStoreUri;
+    String                        publicKeyUri;
+    String                        secretStoreIdUri;
+    Long                          secretId;
 
-    Map<String, String> credentialElement;
-    String              saveOrUpdateSecretResponse;
-    String              getSecretByKeyResponse;
-    String              getSecretBySecretIdResponse;
-    String              getDecryptedSecretBySecretIdResponse;
-    String              responseSecretId;
-    String              secretKey;
-    String              publicKeyResponseObject;
-    SecretRequest       secretRequest;
-    String              publickKey;
-    String              publickKeyInvalid;
-    Map<String, String> credentialElementEncrypted;
+    Map<String, String>           credentialElement;
+    String                        saveOrUpdateSecretResponse;
+    String                        getSecretByKeyResponse;
+    String                        getSecretBySecretIdResponse;
+    String                        getDecryptedSecretBySecretIdResponse;
+    String                        getDecryptedSecretBySecretKeyResponse;
+    String                        responseSecretId;
+    String                        secretKey;
+    String                        publicKeyResponseObject;
+    SecretRequest                 secretRequest;
+    String                        publickKey;
+    String                        publickKeyInvalid;
+    String                        role;
+    Map<String, String>           credentialElementEncrypted;
 
     @Before
     public void setUp() throws NoSuchFieldException, IllegalAccessException, CipherManagerException
@@ -89,7 +93,7 @@ public class CredentialServiceClientImplTest
         publicKeyUri = "/secretstore/v1/publickey";
         secretKey = "key_191220017_1";
         secretStoreIdUri = "/secretstore/v1/secret/";
-
+        role = "user";
         secretId = 459l;
 
         restTemplate = new RestTemplate();
@@ -99,8 +103,8 @@ public class CredentialServiceClientImplTest
         asymmetricCipherManager = new AsymmetricCipherManager();
         asymmetricCipherManager.setSymmetricCipherManager(new SymmetricCipherManager());
         asymmetricCipherManager.initialize();
-        HelperUtility.accessPrivateFields(CredentialServiceClientImpl.class,
-                credentialServiceClient, "asymmetricCipherManager", asymmetricCipherManager);
+        HelperUtility.accessPrivateFields(CredentialServiceClientImpl.class, credentialServiceClient, "asymmetricCipherManager",
+                asymmetricCipherManager);
 
         credentialElement = new HashMap<>();
         credentialElement.put("user", "ABC");
@@ -115,6 +119,7 @@ public class CredentialServiceClientImplTest
         getSecretByKeyResponse = "{\"secrets\":[{\"role\":\"default\",\"secretId\":459,\"keys\":[\"key_191220017_1\"],\"credentialElement\":{\"pwd\":\"ofVky1mE+b+AIoiG8GvIozs9YLw2Rg8QVKpjPNHJiLUNVAh8baqJJB3JEiJS7IIbq5/XhyJ3tEaMqLhNRLWz/gSVAA+ClkRE/sKq8Tm4xfzK/UL6YSsktmuvTbOoBM5pGDhf8FwkTzsVo2fCZH9xSth3BmrNOEs2BClRZIZz9XAXnkDDtxGiwaPhbV4vpxs1rqjDgHLWscVQhYZDyj4jxEGCjXyYE0wanssDJ3wbZpYYsiIMQPlGMuRaPCicPTzdUym8bujZXeptv6sIuLNygDdLll36OenXyaiKbSO4LkS5V67JjD5cg8y73bD/R8//xxUiOfRn+a8sqqcdIJ1QZw==\",\"user\":\"38Uw5NRxm/H5dUL5B3cdxnWDBV39NuCTVUJRcKesXsmPqzYg509MqiBOUCGBznnsV80B7ewwbBMGqraY3xWhUgKF+szEPnlhnGg4sYiBldUes2go3gukMZ9cXtV9j/4+VbHQ9UzYx41QNq9AJy+WrYOUuKXpEDwBlA43/fapN2UT2KygiIP6ATDsDWhjfzngMMh9A9sBB+mzITJtZ/U9aqjsOa9aoF39fv0Ks2BKDxwfzg9fancpa3lbXSZ12SbD74QempIutf/0h98WgMV8SdP9hx7GDdRh2896pK/YP6RQEVwqZNnroUUGJRx0LdBxmNLz87BVlLyXVB3iBI2jpg==\"}}],\"status\":\"OK\",\"links\":[]}";
         getSecretBySecretIdResponse = "{\"secrets\":[{\"role\":\"default\",\"secretId\":459,\"keys\":[\"key_191220017_1\"],\"credentialElement\":{\"pwd\":\"gzDVcvcP/UK1WTfJrDwlsnCnCIkqnFZS23BvhofdzNRbQhKDdor3zeQjUXEqF0NSXEeInw1NTbrhOOUdhWzJbgbCCK63fMr8TkzD3npcPuvrPdFv8bigy7M/acSWicZ4ylzdOoKKjgUTCNVD/8gwyWyF3o2BAMrCPcJB5j/1OFMGzM9EjrzYDyBLoBk5H1/Y3Vb8ysDr5kws80Xrs+Kx/jOxxX2+xWa3Z6vl49zTDRwu42AdRb3RvwJPNgHD4+NjsyvgKpR1riIuVUpfZXWNdIErrxFema49Y9/zIMxL4aHChopN92BEy1vFQhGYcmWhKH9uxHIv1SnSBsYs+xz8ng==\",\"user\":\"jRyatAGA6PeNRoHeu8+nO/cKywWnV8Tijpgo8aOYcmHQDaMJMcgnxE0tgGcsA+k3qad6l8kLqEm4z9tSauVsm7mkowTjbO8YyB5JtjEuGia3xotubKXRJi26d/qkHwWPWAfA5e2SQF4WJ/Fv/7Y2oIva5rgfJ0LjIlznePvZ963becLI4HzjW1YpUEbE/cLK56knJ2tTpXisRuJDFW4sKK6K1WbqhystBVFhMees2NMmIdNksxqklDvxQTsZo7ES/4rEttAILjRf4nyvVzr0TFzmmsLTUhIeeanKCfnoX4N3egEhPuuNk7U0LsL+vPGdopFAfRaF6bz0s93shHRF/g==\"}}],\"status\":\"OK\",\"links\":[]}";
         getDecryptedSecretBySecretIdResponse = "{\"secrets\":[{\"role\":\"default\",\"secretId\":459,\"keys\":[\"key_191220017_1\"],\"credentialElement\":{\"pwd\":\"XYZ\",\"user\":\"ABC\"}}],\"status\":\"OK\",\"links\":[]}";
+        getDecryptedSecretBySecretKeyResponse = "{\"secrets\":[{\"role\":\"default\",\"secretId\":459,\"keys\":[\"key_191220017_1\"],\"credentialElement\":{\"pwd\":\"XYZ\",\"user\":\"ABC\"}}],\"status\":\"OK\",\"links\":[]}";
         publicKeyResponseObject = "{\"publicKey\":\"" + publickKey + "\"}";
         responseSecretId = "459";
 
@@ -226,8 +231,7 @@ public class CredentialServiceClientImplTest
         mockServer.expect(requestTo(Matchers.containsString(publicKeyUri))).andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(publicKeyResponseObject, MediaType.APPLICATION_JSON));
 
-        mockServer.expect(requestTo(Matchers.containsString(secretStoreUri))).andExpect(method(HttpMethod.POST)).andRespond(respond ->
-        {
+        mockServer.expect(requestTo(Matchers.containsString(secretStoreUri))).andExpect(method(HttpMethod.POST)).andRespond(respond -> {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST);
         });
 
@@ -301,8 +305,7 @@ public class CredentialServiceClientImplTest
         mockServer.expect(requestTo(Matchers.containsString(publicKeyUri))).andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(publicKeyResponseObject, MediaType.APPLICATION_JSON));
 
-        mockServer.expect(requestTo(Matchers.containsString(secretStoreUri))).andExpect(method(HttpMethod.PATCH)).andRespond(respond ->
-        {
+        mockServer.expect(requestTo(Matchers.containsString(secretStoreUri))).andExpect(method(HttpMethod.PATCH)).andRespond(respond -> {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST);
         });
 
@@ -314,24 +317,103 @@ public class CredentialServiceClientImplTest
     {
         mockServer.expect(requestTo(Matchers.containsString(secretStoreUri))).andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(getSecretByKeyResponse, MediaType.APPLICATION_JSON));
-
         SecretStoreResponse storeResponse = credentialServiceClient.getSecret(secretKey, publickKey);
         String response = JsonUtil.convertObjectToJson(storeResponse);
         Assert.assertEquals(getSecretByKeyResponse, response);
 
     }
 
-    //This need to be fixed....
-    // @Test(expected = CredentialServiceClientException.class)
-    /*public void testGetSecretByKeyInvalidPublicKeyException() throws CredentialServiceClientException, IOException
+    @Test(expected = CredentialServiceClientException.class)
+    public void testGetSecretByKeyInvalidPublicKeyException() throws CredentialServiceClientException, IOException
+    {
+        mockServer.expect(requestTo(Matchers.containsString(secretStoreUri))).andExpect(method(HttpMethod.GET)).andRespond(respond -> {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST);
+        });
+
+        credentialServiceClient.getSecret(secretKey, publickKeyInvalid);
+
+    }
+
+    @Test
+    public void testGetSecretByKeyAndRole() throws CredentialServiceClientException, IOException
     {
         mockServer.expect(requestTo(Matchers.containsString(secretStoreUri))).andExpect(method(HttpMethod.GET))
-                .andRespond(withSuccess(getSecretResponse, MediaType.APPLICATION_JSON));
-
-        SecretStoreResponse storeResponse = credentialServiceClient.getSecret(publickKeyInvalid, secretKey);
+                .andRespond(withSuccess(getSecretByKeyResponse, MediaType.APPLICATION_JSON));
+        String secretKey = null;
+        SecretStoreResponse storeResponse = credentialServiceClient.getSecret(secretKey, role, publickKey);
         String response = JsonUtil.convertObjectToJson(storeResponse);
-        Assert.assertEquals(getSecretResponse , response);
-    }*/
+        Assert.assertEquals(getSecretByKeyResponse, response);
+
+    }
+
+    @Test(expected = CredentialServiceClientException.class)
+    public void testGetSecretByKeyAndRoleInvalidPublicKeyException() throws CredentialServiceClientException, IOException
+    {
+        mockServer.expect(requestTo(Matchers.containsString(secretStoreUri))).andExpect(method(HttpMethod.GET)).andRespond(respond -> {
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST);
+        });
+
+        credentialServiceClient.getSecret(secretKey, role, publickKeyInvalid);
+
+    }
+
+    @Test
+    public void testGetDecryptedSecretByKey() throws CredentialServiceClientException, IOException
+    {
+        mockServer.expect(requestTo(Matchers.containsString(secretStoreUri))).andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(getDecryptedSecretBySecretKeyResponse, MediaType.APPLICATION_JSON));
+
+        Mockito.when(asymmetricCipherManagerUtil.decryptCredentialElement(Mockito.any())).thenReturn(credentialElement);
+
+        SecretStoreResponse storeResponse = credentialServiceClient.getDecryptedSecret(secretKey);
+
+        String response = JsonUtil.convertObjectToJson(storeResponse.getSecrets().get(0).getCredentialElement());
+        String credentialElementStr = JsonUtil.convertObjectToJson(credentialElement);
+        Assert.assertEquals(credentialElementStr, response);
+
+    }
+
+    @Test(expected = CredentialServiceClientException.class)
+    public void testGetDecryptedSecretByKeyException() throws CredentialServiceClientException, IOException
+    {
+        mockServer.expect(requestTo(Matchers.containsString(secretStoreUri))).andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(getDecryptedSecretBySecretKeyResponse, MediaType.APPLICATION_JSON));
+
+        Mockito.when(asymmetricCipherManagerUtil.decryptCredentialElement(Mockito.any()))
+                .thenThrow(new CredentialServiceClientException(ErrorMessages.DECRYPTION_TRANSFORMATION_ERROR.toString()));
+
+        credentialServiceClient.getDecryptedSecret(secretKey);
+
+    }
+
+    @Test
+    public void testGetDecryptedSecretByKeyAndRole() throws CredentialServiceClientException, IOException
+    {
+        mockServer.expect(requestTo(Matchers.containsString(secretStoreUri))).andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(getDecryptedSecretBySecretKeyResponse, MediaType.APPLICATION_JSON));
+
+        Mockito.when(asymmetricCipherManagerUtil.decryptCredentialElement(Mockito.any())).thenReturn(credentialElement);
+
+        SecretStoreResponse storeResponse = credentialServiceClient.getDecryptedSecret(secretKey, role);
+
+        String response = JsonUtil.convertObjectToJson(storeResponse.getSecrets().get(0).getCredentialElement());
+        String credentialElementStr = JsonUtil.convertObjectToJson(credentialElement);
+        Assert.assertEquals(credentialElementStr, response);
+
+    }
+
+    @Test(expected = CredentialServiceClientException.class)
+    public void testGetDecryptedSecretByKeyAndRoleException() throws CredentialServiceClientException, IOException
+    {
+        mockServer.expect(requestTo(Matchers.containsString(secretStoreUri))).andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(getDecryptedSecretBySecretKeyResponse, MediaType.APPLICATION_JSON));
+
+        Mockito.when(asymmetricCipherManagerUtil.decryptCredentialElement(Mockito.any()))
+                .thenThrow(new CredentialServiceClientException(ErrorMessages.DECRYPTION_TRANSFORMATION_ERROR.toString()));
+
+        credentialServiceClient.getDecryptedSecret(secretKey, role);
+
+    }
 
     @Test
     public void testGetSecretBySecretId() throws CredentialServiceClientException, IOException
@@ -347,8 +429,7 @@ public class CredentialServiceClientImplTest
     @Test(expected = CredentialServiceClientException.class)
     public void testGetSecretBySecretIdEncryptionException() throws CredentialServiceClientException, IOException
     {
-        mockServer.expect(requestTo(Matchers.containsString(secretStoreIdUri))).andExpect(method(HttpMethod.GET)).andRespond(respond ->
-        {
+        mockServer.expect(requestTo(Matchers.containsString(secretStoreIdUri))).andExpect(method(HttpMethod.GET)).andRespond(respond -> {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST);
         });
 
@@ -375,8 +456,64 @@ public class CredentialServiceClientImplTest
         mockServer.expect(requestTo(Matchers.containsString(secretStoreIdUri))).andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess(getSecretBySecretIdResponse, MediaType.APPLICATION_JSON));
 
-        Mockito.when(asymmetricCipherManagerUtil.decryptCredentialElement(Mockito.any())).thenThrow(new CredentialServiceClientException(ErrorMessages.DECRYPTION_TRANSFORMATION_ERROR.toString(), new Throwable()));
+        Mockito.when(asymmetricCipherManagerUtil.decryptCredentialElement(Mockito.any()))
+                .thenThrow(new CredentialServiceClientException(ErrorMessages.DECRYPTION_TRANSFORMATION_ERROR.toString(), new Throwable()));
         credentialServiceClient.getDecryptedSecret(secretId);
+    }
+
+    @Test
+    public void testDeleteSecret() throws CredentialServiceClientException
+    {
+
+        mockServer.expect(requestTo(Matchers.containsString(secretStoreIdUri))).andExpect(method(HttpMethod.DELETE))
+                .andRespond(withSuccess());
+        credentialServiceClient.deleteSecret(secretId);
+        mockServer.verify();
+    }
+
+    @Test
+    public void testDeleteSecretException() throws CredentialServiceClientException
+    {
+
+        mockServer.expect(requestTo(Matchers.containsString(secretStoreIdUri))).andExpect(method(HttpMethod.DELETE)).andRespond(respond -> {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        });
+        try
+        {
+            credentialServiceClient.deleteSecret(secretId);
+        }
+        catch (CredentialServiceClientException credentialServiceClientException)
+        {
+            Assert.assertEquals(credentialServiceClientException.getMessage(), ErrorMessages.DELETE_SECRET_BY_SECRET_ID_FAILED.toString());
+        }
+    }
+
+    @Test
+    public void testDeleteBySecretKey() throws CredentialServiceClientException
+    {
+        mockServer.expect(requestTo(Matchers.containsString(secretStoreUri))).andExpect(method(HttpMethod.DELETE))
+                .andRespond(withSuccess());
+
+        credentialServiceClient.deleteSecret(secretKey);
+
+        mockServer.verify();
+    }
+
+    @Test
+    public void testDeleteBySecretKeyException() throws CredentialServiceClientException
+    {
+        mockServer.expect(requestTo(Matchers.containsString(secretStoreUri))).andExpect(method(HttpMethod.DELETE)).andRespond(respond -> {
+            throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+        });
+
+        try
+        {
+            credentialServiceClient.deleteSecret(secretKey);
+        }
+        catch (CredentialServiceClientException credentialServiceClientException)
+        {
+            Assert.assertEquals(ErrorMessages.DELETE_SECRET_BY_KEY_FAILED.toString(), credentialServiceClientException.getMessage());
+        }
     }
 
 }
