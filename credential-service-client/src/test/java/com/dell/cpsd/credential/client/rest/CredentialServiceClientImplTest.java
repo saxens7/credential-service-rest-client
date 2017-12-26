@@ -93,7 +93,7 @@ public class CredentialServiceClientImplTest
         publicKeyUri = "/secretstore/v1/publickey";
         secretKey = "key_191220017_1";
         secretStoreIdUri = "/secretstore/v1/secret/";
-        role = "user";
+        role="user";
         secretId = 459l;
 
         restTemplate = new RestTemplate();
@@ -345,7 +345,7 @@ public class CredentialServiceClientImplTest
         Assert.assertEquals(getSecretByKeyResponse, response);
 
     }
-
+    
     @Test(expected = CredentialServiceClientException.class)
     public void testGetSecretByKeyAndRoleInvalidPublicKeyException() throws CredentialServiceClientException, IOException
     {
@@ -357,6 +357,7 @@ public class CredentialServiceClientImplTest
 
     }
 
+    
     @Test
     public void testGetDecryptedSecretByKey() throws CredentialServiceClientException, IOException
     {
@@ -382,10 +383,10 @@ public class CredentialServiceClientImplTest
         Mockito.when(asymmetricCipherManagerUtil.decryptCredentialElement(Mockito.any()))
                 .thenThrow(new CredentialServiceClientException(ErrorMessages.DECRYPTION_TRANSFORMATION_ERROR.toString()));
 
-        credentialServiceClient.getDecryptedSecret(secretKey);
+       credentialServiceClient.getDecryptedSecret(secretKey);
 
     }
-
+    
     @Test
     public void testGetDecryptedSecretByKeyAndRole() throws CredentialServiceClientException, IOException
     {
@@ -411,10 +412,11 @@ public class CredentialServiceClientImplTest
         Mockito.when(asymmetricCipherManagerUtil.decryptCredentialElement(Mockito.any()))
                 .thenThrow(new CredentialServiceClientException(ErrorMessages.DECRYPTION_TRANSFORMATION_ERROR.toString()));
 
-        credentialServiceClient.getDecryptedSecret(secretKey, role);
+      credentialServiceClient.getDecryptedSecret(secretKey, role);
 
     }
 
+    
     @Test
     public void testGetSecretBySecretId() throws CredentialServiceClientException, IOException
     {
@@ -478,12 +480,9 @@ public class CredentialServiceClientImplTest
         mockServer.expect(requestTo(Matchers.containsString(secretStoreIdUri))).andExpect(method(HttpMethod.DELETE)).andRespond(respond -> {
             throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
         });
-        try
-        {
-            credentialServiceClient.deleteSecret(secretId);
-        }
-        catch (CredentialServiceClientException credentialServiceClientException)
-        {
+        try {
+        credentialServiceClient.deleteSecret(secretId);
+        }catch(CredentialServiceClientException credentialServiceClientException) {
             Assert.assertEquals(credentialServiceClientException.getMessage(), ErrorMessages.DELETE_SECRET_BY_SECRET_ID_FAILED.toString());
         }
     }
