@@ -32,7 +32,7 @@
         <credential-service-api.version>1.3.3-SNAPSHOT</credential-service-api.version>
         <jsonschema2pojo-maven-plugin.version>0.4.37</jsonschema2pojo-maven-plugin.version>
         <common-contract-enricher.version>2.0.0</common-contract-enricher.version>
-
+		<maven-javadoc-plugin.version>3.0.0-M1</maven-javadoc-plugin.version> 
         <maven-dependency-plugin.version>2.10</maven-dependency-plugin.version>
         <spring-boot-starter-test.version>1.4.1.RELEASE</spring-boot-starter-test.version>
         <common-keystore.version>2.0.0</common-keystore.version>
@@ -111,7 +111,27 @@
         </resources>
 
         <plugins>
-            <plugin>
+        
+        	<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<version>${maven-javadoc-plugin.version}</version>
+				
+				<executions>
+					<execution>
+						<configuration>
+							<skip>false</skip>
+							<!-- <additionalparam>-Xdoclint:none</additionalparam> -->
+						</configuration>
+						<id>attach-javadocs</id>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			
+			<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>${maven-dependency-plugin.version}</version>
