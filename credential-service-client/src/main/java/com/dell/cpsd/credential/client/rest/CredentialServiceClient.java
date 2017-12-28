@@ -32,7 +32,7 @@ public interface CredentialServiceClient
      *
      * @param secretKey
      * @param publicKey
-     * @return
+     * @return SecretStoreResponse
      * @throws CredentialServiceClientException
      */
     SecretStoreResponse getSecret(String secretKey, String publicKey) throws CredentialServiceClientException;
@@ -43,7 +43,7 @@ public interface CredentialServiceClient
      * @param secretKey
      * @param role
      * @param publicKey
-     * @return
+     * @return SecretStoreResponse
      * @throws CredentialServiceClientException
      */
     SecretStoreResponse getSecret(String secretKey, String role, String publicKey) throws CredentialServiceClientException;
@@ -52,7 +52,7 @@ public interface CredentialServiceClient
      * This method will help to get Decrypted Secret by Key.
      *
      * @param secretKey
-     * @return
+     * @return SecretStoreResponse
      * @throws CredentialServiceClientException
      */
     SecretStoreResponse getDecryptedSecret(String secretKey) throws CredentialServiceClientException;
@@ -61,7 +61,7 @@ public interface CredentialServiceClient
      * This method will help to get Decrypted Secret by Key and Role.
      *
      * @param secretKey
-     * @return
+     * @return SecretStoreResponse
      * @throws CredentialServiceClientException
      */
     SecretStoreResponse getDecryptedSecret(String secretKey, String role) throws CredentialServiceClientException;
@@ -71,7 +71,7 @@ public interface CredentialServiceClient
      *
      * @param secretId
      * @param publicKey
-     * @return
+     * @return SecretStoreResponse
      * @throws CredentialServiceClientException
      */
     SecretStoreResponse getSecret(Long secretId, String publicKey) throws CredentialServiceClientException;
@@ -80,7 +80,7 @@ public interface CredentialServiceClient
      * This method will help to get Secret by Secret Id.
      *
      * @param secretId
-     * @return
+     * @return SecretStoreResponse
      * @throws CredentialServiceClientException
      */
     SecretStoreResponse getDecryptedSecret(Long secretId) throws CredentialServiceClientException;
@@ -89,7 +89,7 @@ public interface CredentialServiceClient
      * This method will save Secret into Credential Service
      *
      * @param secretRequest
-     * @return
+     * @return String secretId
      * @throws CredentialServiceClientException
      */
     String saveSecret(SecretRequest secretRequest) throws CredentialServiceClientException;
@@ -98,14 +98,14 @@ public interface CredentialServiceClient
      * This method will Update Secret
      *
      * @param secretRequest
-     * @return
+     * @return String secretId
      * @throws CredentialServiceClientException
      */
     String updateSecret(SecretRequest secretRequest) throws CredentialServiceClientException;
 
     /**
-     * This method will delete both Secret and Key, if Secret is not referred by any other Key.
-     * If Secret is referred by multiple Key's then only Key will be deleted not Secret
+     * This method will delete both Secret and Key, if Secret is not referred by any other Key. If Secret is referred by multiple Key's then
+     * only Key will be deleted not Secret
      *
      * @param secretKey
      * @throws CredentialServiceClientException
@@ -113,8 +113,7 @@ public interface CredentialServiceClient
     void deleteSecret(String secretKey) throws CredentialServiceClientException;
 
     /**
-     * This method will delete Secret by Secret Id.
-     * Secret will not be deleted if it is being referred by at least one Key.
+     * This method will delete Secret by Secret Id. Secret will not be deleted if it is being referred by at least one Key.
      *
      * @param secretId
      * @throws CredentialServiceClientException

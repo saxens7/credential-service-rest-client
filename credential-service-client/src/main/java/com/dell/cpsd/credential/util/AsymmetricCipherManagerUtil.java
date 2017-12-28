@@ -37,12 +37,12 @@ public class AsymmetricCipherManagerUtil
      * This method will be used to build instance of AsymmetricCipherManager from provided public key
      *
      * @param publicKey
-     * @return
+     * @return AsymmetricCipherManager
      * @throws CredentialServiceClientException
      */
     private AsymmetricCipherManager buildAsymmetricManager(String publicKey) throws CredentialServiceClientException
     {
-        //Create AsymmetricCipherManager
+        // Create AsymmetricCipherManager
         try
         {
             return new AsymmetricCipherManager(Base64.getDecoder().decode(publicKey));
@@ -53,9 +53,16 @@ public class AsymmetricCipherManagerUtil
         }
     }
 
+    /**
+     * This method will convert Object to Json Node.
+     * 
+     * @param credentialElement
+     * @return JsonNode
+     * @throws CredentialServiceClientException
+     */
     private JsonNode convertObjectToJsonNode(Object credentialElement) throws CredentialServiceClientException
     {
-        //Parse
+        // Parse
         try
         {
             return JsonUtil.convertObjectToJsonNode(credentialElement);
@@ -66,6 +73,15 @@ public class AsymmetricCipherManagerUtil
         }
     }
 
+    /**
+     * This method will Encrypt or Decrypt Credential Element depending upon boolean value "encrypt"
+     * 
+     * @param asymmetricCipherManager
+     * @param jsonNode
+     * @param encrypt
+     * @return Map<String, String>
+     * @throws CipherManagerException
+     */
     private Map<String, String> encryptOrDecryptCredentialElement(AsymmetricCipherManager asymmetricCipherManager, JsonNode jsonNode,
             Boolean encrypt) throws CipherManagerException
     {
@@ -88,12 +104,19 @@ public class AsymmetricCipherManagerUtil
         return response;
     }
 
+    /**
+     * This method will decrypt credentialElement.
+     * 
+     * @param credentialElement
+     * @return Object
+     * @throws CredentialServiceClientException
+     */
     public Object decryptCredentialElement(Object credentialElement) throws CredentialServiceClientException
     {
-        //Parse
+        // Parse
         JsonNode input = convertObjectToJsonNode(credentialElement);
 
-        //Encrypt CredentialElement
+        // Encrypt CredentialElement
         try
         {
             return encryptOrDecryptCredentialElement(asymmetricCipherManager, input, false);
@@ -104,15 +127,23 @@ public class AsymmetricCipherManagerUtil
         }
     }
 
+    /**
+     * This method will encrypt credentialElement.
+     * 
+     * @param publicKey
+     * @param credentialElement
+     * @return Object
+     * @throws CredentialServiceClientException
+     */
     public Object encryptCredentialElement(String publicKey, Object credentialElement) throws CredentialServiceClientException
     {
-        //Get AsymmetricCipherManager
+        // Get AsymmetricCipherManager
         AsymmetricCipherManager asymmetricCipherManager = buildAsymmetricManager(publicKey);
 
-        //Parse
+        // Parse
         JsonNode input = convertObjectToJsonNode(credentialElement);
 
-        //Encrypt CredentialElement
+        // Encrypt CredentialElement
         try
         {
             return encryptOrDecryptCredentialElement(asymmetricCipherManager, input, true);
