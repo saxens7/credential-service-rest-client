@@ -14,10 +14,11 @@
 	<modules>
 		<module>credential-service-client</module>
 		<module>credential-service-rest-client-starter</module>
+		<module>credential-service-client-boot-app</module>
 	</modules>
 	<packaging>pom</packaging>
 
-	<name>credential-service-client</name>
+	<name>credential-service-rest-client</name>
 	<description>credential-service-rest-client</description>
 
 	<parent>
@@ -89,13 +90,13 @@
 		</dependencies>
 	</dependencyManagement>
 
-	<!--<build>
+	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
 		</plugins>
-	</build>-->
+	</build>
 
 </project>
