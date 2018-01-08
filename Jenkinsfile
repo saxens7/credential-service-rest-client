@@ -85,11 +85,11 @@ pipeline {
                 doNexbScanning()
             }
         }
-        stage('Run pytest Scanner') {
+        /*stage('Run pytest Scanner') {
             steps {
                 runPyTestScanner()
             }
-    	}
+    	}*/
     }
     post {
         always {
