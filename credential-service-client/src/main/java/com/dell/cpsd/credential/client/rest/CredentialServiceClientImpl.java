@@ -37,7 +37,7 @@ import java.util.Map;
  * @version 1.0
  * @since 1.0
  */
-@Component
+//@Component
 public class CredentialServiceClientImpl implements CredentialServiceClient
 {
     @Autowired
