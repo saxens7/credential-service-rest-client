@@ -12,6 +12,8 @@ import com.dell.cpsd.credential.model.rest.api.response.SecretResponse;
 import com.dell.cpsd.credential.model.rest.api.response.SecretStoreResponse;
 import com.dell.cpsd.credential.util.AsymmetricCipherManagerUtil;
 import com.dell.cpsd.credential.util.ErrorMessages;
+import com.dell.cpsd.credential.util.JsonUtil;
+import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -24,6 +26,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -290,12 +293,24 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
         {
             if (!ObjectUtils.isEmpty(secretRequest.getCredentialElement()))
             {
-                //ToDo - Get PublicKey from REST Service
-                String publicKey = this.getPublicKey();
+                try
+                {
+                    //Before getting public key check Credential Element Object is Encryptable or not
+                    JsonNode jsonNodeObject = JsonUtil.convertObjectToJsonNode(secretRequest.getCredentialElement());
+                    if(jsonNodeObject.size() > 0){
+                        //ToDo - Get PublicKey from REST Service
+                        String publicKey = this.getPublicKey();
 
-                Object credentialElement = asymmetricCipherManagerUtil
-                        .encryptCredentialElement(publicKey, secretRequest.getCredentialElement());
-                secretRequest.setCredentialElement(credentialElement);
+                        Object credentialElement = asymmetricCipherManagerUtil
+                                .encryptCredentialElement(publicKey, secretRequest.getCredentialElement());
+                        secretRequest.setCredentialElement(credentialElement);
+                    }
+                }
+                catch (IOException e)
+                {
+                    //ToDo - Log Invalid Error Message
+                    //e.printStackTrace();
+                }
             }
         }
     }
