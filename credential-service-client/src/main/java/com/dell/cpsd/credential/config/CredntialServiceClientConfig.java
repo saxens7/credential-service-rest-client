@@ -3,11 +3,11 @@
  */
 package com.dell.cpsd.credential.config;
 
-import com.dell.cpsd.credential.client.rest.CredentialServiceClient;
-import com.dell.cpsd.credential.client.rest.CredentialServiceClientImpl;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -20,13 +20,10 @@ import org.springframework.web.client.RestTemplate;
  * @since 1.0
  */
 @Configuration
+@ComponentScan(basePackages = "com.dell.cpsd.credential")
+@Import(com.dell.cpsd.common.keystore.encryption.config.EncryptionConfig.class)
 public class CredntialServiceClientConfig
 {
-    @Bean
-    CredentialServiceClient credentialServiceClient(){
-        return new CredentialServiceClientImpl();
-    }
-
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder builder)
     {
