@@ -194,12 +194,13 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
         String URL = "https://credential-service.cpsd.dell:9090/secretstore/v1/key";
 
         //Process Secret request Object.
-        processSecretRequest(secretRequest);
+        SecretRequest request = this.deepCopy(secretRequest);
+        processSecretRequest(request);
 
         String secretId = null;
         try
         {
-            SecretStoreResponse response = restTemplate.postForObject(URL, secretRequest, SecretStoreResponse.class);
+            SecretStoreResponse response = restTemplate.postForObject(URL, request, SecretStoreResponse.class);
             String secretIdUrl = response.getLinks().get(0).getHref();
             return secretIdUrl.substring(secretIdUrl.lastIndexOf('/') + 1);
         }
@@ -221,12 +222,13 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
         String URL = "https://credential-service.cpsd.dell:9090/secretstore/v1/key";
 
         //Process Secret request Object.
-        processSecretRequest(secretRequest);
+        SecretRequest request = this.deepCopy(secretRequest);
+        processSecretRequest(request);
 
         String secretId = null;
         try
         {
-            SecretStoreResponse response = restTemplate.patchForObject(URL, secretRequest, SecretStoreResponse.class);
+            SecretStoreResponse response = restTemplate.patchForObject(URL, request, SecretStoreResponse.class);
             String secretIdUrl = response.getLinks().get(0).getHref();
             secretId = secretIdUrl.substring(secretIdUrl.lastIndexOf('/') + 1);
         }
@@ -324,5 +326,17 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
         }
 
         return secretStoreResponse;
+    }
+
+    private SecretRequest deepCopy(SecretRequest secretRequest) throws CredentialServiceClientException
+    {
+        try
+        {
+            return JsonUtil.deepCopy(secretRequest, SecretRequest.class);
+        }
+        catch (IOException e)
+        {
+            throw new CredentialServiceClientException(e.getLocalizedMessage(), e);
+        }
     }
 }

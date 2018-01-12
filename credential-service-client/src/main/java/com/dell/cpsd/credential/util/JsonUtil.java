@@ -61,4 +61,10 @@ public class JsonUtil
         String json = convertObjectToJson(object);
         return jsonToObject(json, JsonNode.class);
     }
+
+    public static <T> T deepCopy(T object, Class<T> classType) throws IOException
+    {
+        String json = convertObjectToJson(object);
+        return jsonToObject(json, classType);
+    }
 }
