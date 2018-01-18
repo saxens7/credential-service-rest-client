@@ -5,6 +5,7 @@
 package com.dell.cpsd.credential.client.rest;
 
 import com.dell.cpsd.common.keystore.encryption.AsymmetricCipherManager;
+import com.dell.cpsd.credential.config.CredentialServiceClientProperties;
 import com.dell.cpsd.credential.exception.CredentialServiceClientException;
 import com.dell.cpsd.credential.model.rest.api.request.SecretRequest;
 import com.dell.cpsd.credential.model.rest.api.response.PublicKeyResponse;
@@ -26,6 +27,8 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +55,30 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
     @Autowired
     AsymmetricCipherManager asymmetricCipherManager;
 
+    @Autowired
+    CredentialServiceClientProperties properties;
+
+    private String credentialServiceContext;
+    private String publicKeyUri;
+    private String secretStoreKeyUri;
+    private String secretStoreIdUri;
+
+    @PostConstruct
+    public void init() {
+        credentialServiceContext = "https://"+properties.getHostName()+":"+properties.getPort();
+        publicKeyUri = "/secretstore/v1/publickey";
+        secretStoreKeyUri = "/secretstore/v1/key";
+        secretStoreIdUri = "/secretstore/v1/secret/{secretId}";
+    }
+
+    @PreDestroy
+    public void cleanUp(){
+        credentialServiceContext = null;
+        publicKeyUri = null;
+        secretStoreKeyUri = null;
+        secretStoreIdUri = null;
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -59,7 +86,7 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
     public String getPublicKey() throws CredentialServiceClientException
     {
         //ToDo - Change it to get from capability registry / property file.
-        String URL = "https://credential-service.cpsd.dell:9090/secretstore/v1/publickey";
+        String URL = credentialServiceContext+publicKeyUri;
         try
         {
             PublicKeyResponse publicKeyResponse = restTemplate.getForObject(URL, PublicKeyResponse.class);
@@ -88,7 +115,7 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
             throws CredentialServiceClientException
     {
         //ToDo - Change it to get from capability registry / property file.
-        String URL = "https://credential-service.cpsd.dell:9090/secretstore/v1/key";
+        String URL = credentialServiceContext+secretStoreKeyUri;
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", "application/json");
@@ -147,7 +174,7 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
     public SecretStoreResponse getSecret(final Long secretId, final String publicKey) throws CredentialServiceClientException
     {
         //ToDo - Change it to get from capability registry / property file.
-        String URL = "https://credential-service.cpsd.dell:9090/secretstore/v1/secret/{secretId}";
+        String URL = credentialServiceContext+secretStoreIdUri;
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Accept", "application/json");
@@ -188,14 +215,17 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
      * {@inheritDoc}
      */
     @Override
-    public String saveSecret(final SecretRequest secretRequest) throws CredentialServiceClientException
+    public String saveSecret(final SecretRequest secretRequest, Boolean encryptCredentialElement) throws CredentialServiceClientException
     {
         //ToDo - Change it to get from capability registry / property file.
-        String URL = "https://credential-service.cpsd.dell:9090/secretstore/v1/key";
+        String URL = credentialServiceContext+secretStoreKeyUri;
 
         //Process Secret request Object.
         SecretRequest request = this.deepCopy(secretRequest);
-        processSecretRequest(request);
+        if (encryptCredentialElement)
+        {
+            processSecretRequest(request);
+        }
 
         String secretId = null;
         try
@@ -216,14 +246,17 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
      * {@inheritDoc}
      */
     @Override
-    public String updateSecret(final SecretRequest secretRequest) throws CredentialServiceClientException
+    public String updateSecret(final SecretRequest secretRequest, Boolean encryptCredentialElement) throws CredentialServiceClientException
     {
         //ToDo - Change it to get from capability registry / property file.
-        String URL = "https://credential-service.cpsd.dell:9090/secretstore/v1/key";
+        String URL = credentialServiceContext+secretStoreKeyUri;
 
         //Process Secret request Object.
         SecretRequest request = this.deepCopy(secretRequest);
-        processSecretRequest(request);
+        if (encryptCredentialElement)
+        {
+            processSecretRequest(request);
+        }
 
         String secretId = null;
         try
@@ -247,7 +280,7 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
     {
 
         //ToDo - Change it to get from capability registry / property file.
-        String URL = "https://credential-service.cpsd.dell:9090/secretstore/v1/key";
+        String URL = credentialServiceContext+secretStoreKeyUri;
 
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(URL).queryParam("secretKey", secretKey);
 
@@ -269,7 +302,7 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
     public void deleteSecret(final Long secretId) throws CredentialServiceClientException
     {
         //ToDo - Change it to get from capability registry / property file.
-        String URL = "https://credential-service.cpsd.dell:9090/secretstore/v1/secret/{secretId}";
+        String URL = credentialServiceContext+secretStoreIdUri;
 
         Map<String, Long> params = new HashMap<>();
         params.put("secretId", secretId);
@@ -311,7 +344,7 @@ public class CredentialServiceClientImpl implements CredentialServiceClient
                 catch (IOException e)
                 {
                     //ToDo - Log Invalid Error Message
-                    //e.printStackTrace();
+                    throw new CredentialServiceClientException(ErrorMessages.ENCRYPTION_TRANSFORMATION_ERROR.toString());
                 }
             }
         }

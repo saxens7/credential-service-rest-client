@@ -15,7 +15,8 @@
 		<module>credential-service-client</module>
 		<module>credential-service-rest-client-starter</module>
 		<module>credential-service-client-boot-app</module>
-	</modules>
+        <module>credential-service-client-configure</module>
+    </modules>
 	<packaging>pom</packaging>
 
 	<name>credential-service-rest-client</name>

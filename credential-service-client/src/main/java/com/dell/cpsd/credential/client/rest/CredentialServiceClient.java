@@ -89,19 +89,21 @@ public interface CredentialServiceClient
      * This method will save Secret into Credential Service
      *
      * @param secretRequest
+     * @Param encryptCredentialElement
      * @return String secretId
      * @throws CredentialServiceClientException
      */
-    String saveSecret(SecretRequest secretRequest) throws CredentialServiceClientException;
+    String saveSecret(SecretRequest secretRequest, Boolean encryptCredentialElement) throws CredentialServiceClientException;
 
     /**
      * This method will Update Secret
      *
      * @param secretRequest
+     * @Param encryptCredentialElement
      * @return String secretId
      * @throws CredentialServiceClientException
      */
-    String updateSecret(SecretRequest secretRequest) throws CredentialServiceClientException;
+    String updateSecret(SecretRequest secretRequest, Boolean encryptCredentialElement) throws CredentialServiceClientException;
 
     /**
      * This method will delete both Secret and Key, if Secret is not referred by any other Key. If Secret is referred by multiple Key's then

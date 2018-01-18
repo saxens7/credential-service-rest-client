@@ -39,6 +39,11 @@
             <artifactId>credential-service-client</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.dell.cpsd</groupId>
+            <artifactId>credential-service-client-configure</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>
