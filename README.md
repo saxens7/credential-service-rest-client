@@ -10,6 +10,7 @@
 WORK IN PROGRESS
 
 ## Description
+This repository contains a client that communicates with Credential Service REST API tp perform CRUD operation for secrets.
 
 ## Documentation
 You can find additional documentation for Project Symphony at [dellemc-symphony.readthedocs.io](http://dellemcsymphony.readthedocs.io/en/latest/).
@@ -25,15 +26,11 @@ Run the following command to build this project:
 ```bash
 mvn clean install
 ```
+## Consume Client
+Add credential-service-rest-client-starter dependency in you project POM
+Import com.dell.cpsd.credential.config.CredntialServiceClientConfig.class in your project configuration
+Autowire CredentialServiceClient in your class to start consuming Credential Service REST API.
 
-## Deploying
-The output of running the build step is a tagged Docker image.
- 
-Run this locally:
-```bash
-docker run -it --net="host" <docker_image_hash>
-```
-This deploys a container that communicates with the host's RabbitMQ installation. The container is based on the image created in the build step.
 
 ## Contributing 
 Project Symphony is a collection of services and libraries housed at [GitHub][github].
